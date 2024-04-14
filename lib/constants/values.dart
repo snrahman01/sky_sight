@@ -1,0 +1,1 @@
+const int MAX_SEARCH_COUNTRY_LIMIT = 40;
