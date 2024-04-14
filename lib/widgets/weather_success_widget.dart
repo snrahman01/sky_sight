@@ -7,6 +7,7 @@ import '../bloc/city_bloc/city_bloc.dart';
 import '../bloc/city_bloc/city_state.dart';
 import '../bloc/weather_bloc/weather_bloc.dart';
 import '../bloc/weather_bloc/weather_event.dart';
+import '../constants/units.dart';
 import 'details_weather_card.dart';
 
 class WeatherSuccessWidget extends StatelessWidget {
@@ -18,11 +19,13 @@ class WeatherSuccessWidget extends StatelessWidget {
 
   Future<void> _onRefresh(BuildContext context) async {
     final cityState = context.read<CityBloc>().state;
+    final weatherBloc = context.read<WeatherBloc>().state;
     if (cityState is CityNameLoadSuccess) {
       context.read<WeatherBloc>().add(
             WeatherRequested(
               lat: cityState.city.lat,
               lon: cityState.city.lon,
+              unit: weatherBloc.unit??Units.metric
             ),
           );
     }

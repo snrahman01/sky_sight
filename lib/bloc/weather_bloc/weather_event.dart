@@ -12,11 +12,12 @@ abstract class WeatherEvent extends Equatable {
 class WeatherRequested extends WeatherEvent {
   final double lat;
   final double lon;
+  final Units unit;
 
-  const WeatherRequested({required this.lat, required this.lon});
+  const WeatherRequested({required this.lat, required this.lon, required this.unit});
 
   @override
-  List<Object> get props => [lat, lon];
+  List<Object> get props => [lat, lon, unit];
 }
 
 class FetchWeather extends WeatherEvent {

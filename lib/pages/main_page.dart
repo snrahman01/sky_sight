@@ -44,8 +44,9 @@ class MainPage extends StatelessWidget {
   Widget _cityNameWidget(BuildContext context, Size screenSize) {
     return BlocListener<CityBloc, CityState>(listener: (context, state) {
       if (state is CityNameLoadSuccess) {
+        final currentUnit = context.read<WeatherBloc>().state.unit;
         context.read<WeatherBloc>().add(
-              WeatherRequested(lat: state.city.lat, lon: state.city.lon),
+              WeatherRequested(lat: state.city.lat, lon: state.city.lon, unit:currentUnit??Units.metric),
             );
       }
     }, child: BlocBuilder<CityBloc, CityState>(
@@ -97,10 +98,7 @@ class MainPage extends StatelessWidget {
   Widget _unitSelector(BuildContext context) {
     return BlocBuilder<WeatherBloc, WeatherState>(
       builder: (context, state) {
-        Units currentUnit = Units.metric;
-        if (state is WeatherLoadSuccess) {
-          currentUnit = state.unit;
-        }
+        Units currentUnit = state.unit != null ? state.unit!:Units.metric;
 
         return DropdownButton<Units>(
           value: currentUnit,
@@ -131,11 +129,13 @@ class MainPage extends StatelessWidget {
                 ? GestureDetector(
                     onTap: () {
                       final cityState = context.read<CityBloc>().state;
-                      if (cityState is CityNameLoadSuccess) {
+                      if (cityState is CityNameLoadSuccess){
+                        final currentUnit = context.read<WeatherBloc>().state.unit;
                         context.read<WeatherBloc>().add(
                               WeatherRequested(
                                 lat: cityState.city.lat,
                                 lon: cityState.city.lon,
+                                unit: currentUnit??Units.metric
                               ),
                             );
                       }
@@ -144,7 +144,31 @@ class MainPage extends StatelessWidget {
                       weatherList: state.weather.list,
                     ))
                 : state is WeatherLoadFailure
-                    ? Center(child: Text('Failed to Fetch Weather'))
+                    ? Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('Failed to Fetch Weather'),
+              SizedBox(height: 8),
+              ElevatedButton(
+                onPressed: () {
+                  final cityState = context.read<CityBloc>().state;
+                  final unitState = context.read<WeatherBloc>().state.unit;
+                  if (cityState is CityNameLoadSuccess) {
+                    context.read<WeatherBloc>().add(
+                      WeatherRequested(
+                        lat: cityState.city.lat,
+                        lon: cityState.city.lon,
+                        unit: unitState??Units.metric
+                      ),
+                    );
+                  }
+                },
+                child: Text('Retry'),
+              ),
+            ],
+          ),
+        )
                     : Center(child: Text('Please Select a Location'));
       },
     );
